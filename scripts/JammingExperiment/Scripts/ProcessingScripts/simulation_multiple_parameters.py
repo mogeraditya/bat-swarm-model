@@ -79,6 +79,8 @@ def run_one_instance_of_simulation(
     for filepath in os.listdir(job_dir):
         if ".pkl" in filepath and "history_dump" in filepath:
             os.remove(job_dir + "/" + filepath)
+        elif "_initial.pkl" in filepath:
+            os.remove(job_dir + "/" + filepath)
 
 
 def parallel_process_with_pool(

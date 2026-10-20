@@ -82,6 +82,8 @@ def run_one_instance_of_simulation(
         elif "_initial.pkl" in filepath:
             os.remove(job_dir + "/" + filepath)
 
+    os.remove(dir_of_one_param_file)
+
 
 def parallel_process_with_pool(
     param_dir,

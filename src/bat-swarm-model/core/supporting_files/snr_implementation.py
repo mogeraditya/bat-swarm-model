@@ -1,7 +1,6 @@
 # you have a list of sound objects
 # first filtering is include direct sounds or not
 import numpy as np
-
 from supporting_files.utilities import change_tuples_to_vector_in_sound
 
 
@@ -444,6 +443,7 @@ def given_sound_objects_return_detected_sounds(
     call_duration,
     sim_time_step,
     sim_rounding,
+    implement_snr,
 ):
     """given list of sounds, returns the list of sounds that are detected.
     if the sound to masker profile is atleast minimum_sound_detection_fraction
@@ -482,20 +482,21 @@ def given_sound_objects_return_detected_sounds(
     )
     if len(parsed_serialized_sounds) == 0:
         return []
-
-    heard_sounds = []
-    for focal_sound in parsed_serialized_sounds:
-        if is_signal_heard(
-            focal_sound,
-            parsed_serialized_sounds,
-            temporal_masking_df,
-            minimum_sound_detection_fraction,
-            sim_time_step,
-            sim_rounding,
-        ):
-            heard_sounds.append(focal_sound)
-
-    return heard_sounds
+    elif implement_snr:
+        heard_sounds = []
+        for focal_sound in parsed_serialized_sounds:
+            if is_signal_heard(
+                focal_sound,
+                parsed_serialized_sounds,
+                temporal_masking_df,
+                minimum_sound_detection_fraction,
+                sim_time_step,
+                sim_rounding,
+            ):
+                heard_sounds.append(focal_sound)
+        return heard_sounds
+    else:
+        return parsed_serialized_sounds
 
 
 # if __name__ == "__main__":

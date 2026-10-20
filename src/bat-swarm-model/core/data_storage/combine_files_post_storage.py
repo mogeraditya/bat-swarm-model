@@ -4,6 +4,7 @@ import pickle
 
 import h5py
 import numpy as np
+import pandas as pd
 from supporting_files.utilities import load_parameters, make_dir
 from tqdm.rich import tqdm
 
@@ -43,9 +44,7 @@ def stitch_together_pickle_history_lists_and_store(
     # list_containing_data_from_all_pickle_files.append(parameter_df)
     np.append(list_containing_data_from_all_pickle_files, parameter_df)
     make_dir(dir_to_store)
-    with gzip.open(
-        dir_to_store + f"/history_dump_{id_for_simulation}.pkl.gz", "wb"
-    ) as f:
+    with gzip.open(dir_to_store + f"/history_{id_for_simulation}.pkl.gz", "wb") as f:
         pickle.dump(list_containing_data_from_all_pickle_files, f)
     return list_containing_data_from_all_pickle_files
 
@@ -68,3 +67,12 @@ def load_history_dump(file_path):
         for key in f.attrs.keys():
             data[key] = f.attrs[key]
     return data
+
+
+def merge_csvs(input_folder, output_file):
+    files = glob.glob(f"{input_folder}/**/*.csv", recursive=True)
+    if not files:
+        print("No CSV files found")
+        return
+    pd.concat([pd.read_csv(f) for f in files]).to_csv(output_file, index=False)
+    print(f"Merged {len(files)} files into {output_file}")

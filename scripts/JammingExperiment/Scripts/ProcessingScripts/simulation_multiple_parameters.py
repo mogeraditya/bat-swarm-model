@@ -1,18 +1,34 @@
 import glob
 import multiprocessing
 import os
+import random
 import sys
 import time
 
-sys.path.append("./dynamic_model/")
+import numpy as np
+from tqdm.rich import tqdm
+
+sys.path.extend(
+    [
+        "./src/bat-swarm-model/",
+        "./src/bat-swarm-model/core/",
+        "./src/bat-swarm-model/plot/",
+    ]
+)
+from data_storage.combine_files_post_storage import (
+    merge_csvs,
+    stitch_together_pickle_history_lists_and_store,
+)
+from scores.run_all_score_calculations import (
+    given_history_list_generate_score_files_for_sensitivity,
+)
 from simulation.class_simulation import Simulation
 from supporting_files.utilities import load_parameters, make_dir
+from supporting_files.vectors import Vector
 
 
 def run_one_instance_of_simulation(
-    dir_of_one_param_file,
-    simulation_id,
-    data_storage_dir,
+    dir_of_one_param_file, data_storage_dir, initial_release_point
 ):
     """run one instance of the simulation
 
@@ -21,24 +37,56 @@ def run_one_instance_of_simulation(
         simulation_id (int): used to track the iteration number of the sim
 
     """
-
     parameter_df = load_parameters(dir_of_one_param_file)
+    random.seed(parameter_df["seed"])
+    np.random.seed(parameter_df["seed"])
+    # fail safe for storage
+    job_num = parameter_df["PARAM_LABEL"]
+    job_dir = parameter_df["OUTPUT_DIR_FOR_SIMULATION"]
+    job_uuid = parameter_df["PARAM_UUID"]
 
-    output_dir = (
+    job_dir = (
         data_storage_dir
         + parameter_df["OUTPUT_DIR_FOR_SIMULATION"]
-        + f"iteration_number_{simulation_id}"
+        # + f"iteration_number_{simulation_id}"
     )
-    make_dir(output_dir)
+    make_dir(job_dir)
+
     sim = Simulation(
         parameter_df,
-        output_dir,
+        job_dir,
         store_history=True,
+        store_data_for_plotting=True,
+        use_hydra=False,
     )
+    sim.bats[0].position = initial_release_point
     sim.run()
 
+    history_list = stitch_together_pickle_history_lists_and_store(
+        job_dir,
+        job_dir,
+        f"job_number_{job_num}",
+    )
 
-def parallel_process_with_pool(param_dir, n_runs, data_storage_dir, max_workers=None):
+    given_history_list_generate_score_files_for_sensitivity(
+        history_list,
+        job_dir,
+        job_uuid,
+        job_num,
+        range_of_distance_for_local_score=np.arange(0.5, 4, 0.5),
+    )
+
+    for filepath in os.listdir(job_dir):
+        if ".pkl" in filepath and "history_dump" in filepath:
+            os.remove(job_dir + "/" + filepath)
+
+
+def parallel_process_with_pool(
+    param_dir,
+    data_storage_dir,
+    max_workers,
+    initial_release_point,
+):
     """run simulation multiple times for all parameter files
 
     Args:
@@ -58,8 +106,13 @@ def parallel_process_with_pool(param_dir, n_runs, data_storage_dir, max_workers=
     # Prepare tasks
     tasks = []
     for param_file in param_files:
-        for iteration in range(n_runs):
-            tasks.append((param_file, iteration, data_storage_dir))
+        tasks.append(
+            (
+                param_file,
+                data_storage_dir,
+                initial_release_point,
+            )
+        )
 
     # Process with Pool
     if max_workers is None:
@@ -68,26 +121,38 @@ def parallel_process_with_pool(param_dir, n_runs, data_storage_dir, max_workers=
     start_time = time.time()
 
     with multiprocessing.Pool(processes=max_workers) as pool:
-        pool.starmap(run_one_instance_of_simulation, tasks)
+        list(
+            tqdm(
+                pool.starmap_async(run_one_instance_of_simulation, tasks).get(),
+                total=len(tasks),
+                desc="Processing simulations",
+                unit="task",
+                ncols=100,
+                colour="green",
+            )
+        )
 
     end_time = time.time()
-
+    merge_csvs(data_storage_dir, data_storage_dir + "summary_merged.csv")
     print(f"Pool processing completed in {end_time - start_time:.2f} seconds")
 
 
 if __name__ == "__main__":
     # Directory containing your parameter files
-    PARAM_DIR = "./dynamic_model/paramsets/effect_of_group_size/"
+    PARAM_DIR = "./scripts/JammingExperiment/Data/InputData/sensitivity_params/"
 
-    N_RUNS = 20  # Number of iterations per parameter set
-    DATA_STORAGE_DIR = r"./group_experiment_non_null_2_3/"  # Base output directory
+    N_RUNS = 1  # Number of iterations per parameter set
+    DATA_STORAGE_DIR = r"./sensitivity_analysis/"  # Base output directory
     # MAX_WORKERS = 4  # Limit number of parallel processes
 
     # Run parallel processing
     print("Starting parallel processing...")
+
+    chosen_start_location = Vector(5, 3.5)
+
     parallel_process_with_pool(
         param_dir=PARAM_DIR,
-        n_runs=N_RUNS,
         data_storage_dir=DATA_STORAGE_DIR,
-        # max_workers=MAX_WORKERS,
+        max_workers=10,
+        initial_release_point=chosen_start_location,
     )

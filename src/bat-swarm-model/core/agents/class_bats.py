@@ -463,23 +463,19 @@ class Bat:
             >= direction_change_time_interval_using_consistency
             and len(self.detections_for_direction_change_consistency) != 0
         ):
-            heard_sounds = []
-
-            if implement_snr:
-                heard_sounds = given_sound_objects_return_detected_sounds(
-                    self.detections_for_direction_change_consistency,
-                    direction_change_time_interval_using_consistency,
-                    hearing_angle_threshold,
-                    temporal_masking_file,
-                    min_sound_detection_fraction,
-                    self.id,
-                    include_direct_sounds_in_response,
-                    self.parameters_df["CALL_DURATION"],
-                    self.parameters_df["TIME_STEP"],
-                    self.rounding_based_on_time_step,
-                )
-            else:
-                heard_sounds = self.detections_for_direction_change_consistency
+            heard_sounds = given_sound_objects_return_detected_sounds(
+                self.detections_for_direction_change_consistency,
+                direction_change_time_interval_using_consistency,
+                hearing_angle_threshold,
+                temporal_masking_file,
+                min_sound_detection_fraction,
+                self.id,
+                include_direct_sounds_in_response,
+                self.parameters_df["CALL_DURATION"],
+                self.parameters_df["TIME_STEP"],
+                self.rounding_based_on_time_step,
+                implement_snr,
+            )
 
             # self.cleanup_sounds(current_time, heard_sounds)
 
@@ -525,22 +521,20 @@ class Bat:
             and len(self.detections_for_direction_change_loudness) != 0
             and not str2bool(self.any_consistent_sound)
         ):
-            heard_sounds = []
-            if implement_snr:
-                heard_sounds = given_sound_objects_return_detected_sounds(
-                    self.detections_for_direction_change_loudness,
-                    direction_change_time_interval_using_loudness,
-                    hearing_angle_threshold,
-                    temporal_masking_file,
-                    min_sound_detection_fraction,
-                    self.id,
-                    include_direct_sounds_in_response,
-                    self.parameters_df["CALL_DURATION"],
-                    self.parameters_df["TIME_STEP"],
-                    self.rounding_based_on_time_step,
-                )
-            else:
-                heard_sounds = self.detections_for_direction_change_loudness
+
+            heard_sounds = given_sound_objects_return_detected_sounds(
+                self.detections_for_direction_change_loudness,
+                direction_change_time_interval_using_loudness,
+                hearing_angle_threshold,
+                temporal_masking_file,
+                min_sound_detection_fraction,
+                self.id,
+                include_direct_sounds_in_response,
+                self.parameters_df["CALL_DURATION"],
+                self.parameters_df["TIME_STEP"],
+                self.rounding_based_on_time_step,
+                implement_snr,
+            )
 
             self.track_sounds_for_sustained_sounds.append(heard_sounds)
             if (

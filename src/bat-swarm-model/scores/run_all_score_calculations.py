@@ -100,7 +100,7 @@ def given_history_list_generate_score_files(
         history_lists
     )
     parameters_df = load_parameters(data_dir + "/parameters_used.json")
-
+    duration = len(bat_positions_list)
     (
         wall_collision_counter,
         batbat_collision_counter,
@@ -108,94 +108,143 @@ def given_history_list_generate_score_files(
         timeseries_cumulative_bat_bat_collision,
     ) = compute_collision_counts_and_length(bat_positions_list, parameters_df)
     space_occupied_counter = space_occupied_score(parameters_df, bat_positions_list)
-    # polarization_list = [
-    #     compute_polarization(bat_directions) for bat_directions in bat_directions_list
-    # ]
-    # milling_list = [
-    #     compute_milling(bat_directions, bat_positions_list[i])
-    #     for i, bat_directions in enumerate(bat_directions_list)
-    # ]
+    polarization_list = [
+        compute_polarization(bat_directions) for bat_directions in bat_directions_list
+    ]
+    milling_list = [
+        compute_milling(bat_directions, bat_positions_list[i])
+        for i, bat_directions in enumerate(bat_directions_list)
+    ]
 
-    # list_of_local_polarization_timeseries = []
-    # list_of_local_polarization_summary = []
-    # keys_for_local_polarization = []
-    # keys_for_local_polarization_summary = []
-    # for distance in range_of_distance_for_local_score:
-    #     local_polarization_list = [
-    #         compute_local_polarization(
-    #             bat_directions, bat_positions_list[i], parameters_df, distance, "mean"
-    #         )
-    #         for i, bat_directions in enumerate(bat_directions_list)
-    #     ]
-    #     list_of_local_polarization_timeseries.append(local_polarization_list)
-    #     keys_for_local_polarization.append(f"local polarization, range {distance}")
+    list_of_local_polarization_timeseries = []
+    list_of_local_polarization_summary = []
+    keys_for_local_polarization = []
+    keys_for_local_polarization_summary = []
+    for distance in range_of_distance_for_local_score:
+        local_polarization_list = [
+            compute_local_polarization(
+                bat_directions, bat_positions_list[i], parameters_df, distance, "mean"
+            )
+            for i, bat_directions in enumerate(bat_directions_list)
+        ]
+        list_of_local_polarization_timeseries.append(local_polarization_list)
+        keys_for_local_polarization.append(f"local polarization, range {distance}")
 
-    #     list_of_local_polarization_summary.extend(
-    #         [[np.mean(local_polarization_list)], [np.std(local_polarization_list)]]
-    #     )
-    #     keys_for_local_polarization_summary.extend(
-    #         [
-    #             f"mean local polarization, range {distance}",
-    #             f"std local polarization, range {distance}",
-    #         ]
-    #     )
+        list_of_local_polarization_summary.extend(
+            [[np.mean(local_polarization_list)], [np.std(local_polarization_list)]]
+        )
+        keys_for_local_polarization_summary.extend(
+            [
+                f"mean local polarization, range {distance}",
+                f"std local polarization, range {distance}",
+            ]
+        )
 
-    # list_of_timeseries_scores = [
-    #     timeseries_cumulative_bat_bat_collision,
-    #     timeseries_cumulative_wall_collision,
-    #     polarization_list,
-    #     milling_list,
-    # ]
-    # list_of_keys_timeseries = [
-    #     "interbat collision cumulative",
-    #     "wall collision cumulative",
-    #     "polarization",
-    #     "milling",
-    # ]
+    list_of_timeseries_scores = [
+        timeseries_cumulative_bat_bat_collision,
+        timeseries_cumulative_wall_collision,
+        polarization_list,
+        milling_list,
+    ]
+    list_of_keys_timeseries = [
+        "interbat collision cumulative",
+        "wall collision cumulative",
+        "polarization",
+        "milling",
+    ]
 
-    # list_of_timeseries_scores.extend(list_of_local_polarization_timeseries)
-    # list_of_keys_timeseries.extend(keys_for_local_polarization)
+    list_of_timeseries_scores.extend(list_of_local_polarization_timeseries)
+    list_of_keys_timeseries.extend(keys_for_local_polarization)
 
-    # dataframe_timeseries = dict(zip(list_of_keys_timeseries, list_of_timeseries_scores))
-    # dataframe_timeseries = pd.DataFrame.from_dict(dataframe_timeseries)
+    dataframe_timeseries = dict(zip(list_of_keys_timeseries, list_of_timeseries_scores))
+    dataframe_timeseries = pd.DataFrame.from_dict(dataframe_timeseries)
 
     list_of_score_summary = [
         [job_id],
         [run_id],
+        [duration],
         [batbat_collision_counter],
         [wall_collision_counter],
         [space_occupied_counter],
-        # [np.mean(polarization_list)],
-        # [np.std(polarization_list)],
-        # [np.mean(milling_list)],
-        # [np.std(milling_list)],
+        [np.mean(polarization_list)],
+        [np.std(polarization_list)],
+        [np.mean(milling_list)],
+        [np.std(milling_list)],
     ]
 
     list_of_summary_keys = [
         "job id",
         "job uuid",
+        "duration",
         "interbat collision total",
         "wall collision total",
         "space_occupied",
-        # "mean polarization",
-        # "std polarization",
-        # "mean milling",
-        # "std milling",
+        "mean polarization",
+        "std polarization",
+        "mean milling",
+        "std milling",
     ]
 
-    # list_of_score_summary.extend(list_of_local_polarization_summary)
-    # list_of_summary_keys.extend(keys_for_local_polarization_summary)
+    list_of_score_summary.extend(list_of_local_polarization_summary)
+    list_of_summary_keys.extend(keys_for_local_polarization_summary)
 
     dataframe_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
     dataframe_score_summary = pd.DataFrame.from_dict(dataframe_score_summary)
 
-    # dataframe_timeseries.to_csv(
-    #     data_dir + f"/timeseries_dataframe_job_{job_id}_run{run_id}.csv"
-    # )
+    dataframe_timeseries.to_csv(
+        data_dir + f"/timeseries_dataframe_job_{job_id}_run{run_id}.csv"
+    )
     dataframe_score_summary.to_csv(
         data_dir + f"/summary_dataframe_job_{job_id}_run{run_id}.csv"
     )
 
+    return dataframe_score_summary, batbat_collision_counter, wall_collision_counter
+
+
+def given_history_list_generate_score_files_for_sensitivity(
+    history_lists,
+    data_dir,
+    run_id,
+    job_id,
+    range_of_distance_for_local_score,
+):
+
+    bat_positions_list, bat_directions_list = filter_bat_positions_from_history(
+        history_lists
+    )
+    parameters_df = load_parameters(data_dir + "/parameters_used.json")
+    duration = len(bat_positions_list)
+    (
+        wall_collision_counter,
+        batbat_collision_counter,
+        timeseries_cumulative_wall_collision,
+        timeseries_cumulative_bat_bat_collision,
+    ) = compute_collision_counts_and_length(bat_positions_list, parameters_df)
+    space_occupied_counter = space_occupied_score(parameters_df, bat_positions_list)
+
+    list_of_score_summary = [
+        [job_id],
+        [run_id],
+        [duration],
+        [batbat_collision_counter],
+        [wall_collision_counter],
+        [space_occupied_counter],
+    ]
+
+    list_of_summary_keys = [
+        "job id",
+        "job uuid",
+        "duration",
+        "interbat collision total",
+        "wall collision total",
+        "space_occupied",
+    ]
+
+    dict_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
+    merged_dict_with_params = dict_score_summary | parameters_df
+    dataframe_score_summary = pd.DataFrame.from_dict(merged_dict_with_params)
+
+    dataframe_score_summary.to_csv(data_dir + f"/summary_dataframe_job_{job_id}.csv")
     return dataframe_score_summary, batbat_collision_counter, wall_collision_counter
 
 

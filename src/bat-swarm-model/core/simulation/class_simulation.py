@@ -342,26 +342,26 @@ class Simulation:
             "bat_ipi_matrix_for_sensory_volume": [
                 bat.ipi_matrix_for_sensory_volume for bat in self.bats
             ],
-            "polarization_score": compute_polarization(bat_directions),
-            "local_polarization_score": compute_local_polarization(
-                bat_directions, bat_positions, self.parameters_df, 2, "mean"
-            )[0],
-            "local_polarization_score_list": [
-                compute_local_polarization(
-                    bat_directions, bat_positions, self.parameters_df, 2, bat.id
-                )[0]
-                for bat in self.bats
-            ],
-            "local_density_score": compute_local_polarization(
-                bat_directions, bat_positions, self.parameters_df, 2, "mean"
-            )[1],
-            "local_density_score_list": [
-                compute_local_polarization(
-                    bat_directions, bat_positions, self.parameters_df, 2, bat.id
-                )[1]
-                for bat in self.bats
-            ],
-            "milling_score": compute_milling(bat_directions, bat_positions),
+            # "polarization_score": compute_polarization(bat_directions),
+            # "local_polarization_score": compute_local_polarization(
+            #     bat_directions, bat_positions, self.parameters_df, 2, "mean"
+            # )[0],
+            # "local_polarization_score_list": [
+            #     compute_local_polarization(
+            #         bat_directions, bat_positions, self.parameters_df, 2, bat.id
+            #     )[0]
+            #     for bat in self.bats
+            # ],
+            # "local_density_score": compute_local_polarization(
+            #     bat_directions, bat_positions, self.parameters_df, 2, "mean"
+            # )[1],
+            # "local_density_score_list": [
+            #     compute_local_polarization(
+            #         bat_directions, bat_positions, self.parameters_df, 2, bat.id
+            #     )[1]
+            #     for bat in self.bats
+            # ],
+            # "milling_score": compute_milling(bat_directions, bat_positions),
         }
 
         return dictionary_w_information

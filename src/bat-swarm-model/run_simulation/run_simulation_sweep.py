@@ -32,7 +32,10 @@ from data_storage.combine_files_post_storage import (
 # from plotting.polarization_milling_module import PolarizationMillingModule
 # from plotting.sensory_volume_module import SensoryVolumeModule
 from plotting.visualizer import visualize
-from scores.run_all_score_calculations import given_history_list_generate_score_files
+from scores.run_all_score_calculations import (
+    given_history_list_generate_score_files,
+    given_history_list_generate_score_files_for_sensitivity,
+)
 from simulation.class_simulation import Simulation
 
 
@@ -56,7 +59,13 @@ def run_simulation(cfg: DictConfig) -> None:
     print(cfg)
     print(hydra_parent_dir)
 
-    sim = Simulation(cfg, OUTPUT_DIR, store_history=True, store_data_for_plotting=True)
+    sim = Simulation(
+        cfg,
+        OUTPUT_DIR,
+        store_history=True,
+        store_data_for_plotting=True,
+        termination_criteria="distance",
+    )
     sim.run()
 
     history_list = stitch_together_pickle_history_lists_and_store(
@@ -65,16 +74,16 @@ def run_simulation(cfg: DictConfig) -> None:
         f"job_number_{hydra_job_num}",
     )
 
-    given_history_list_generate_score_files(
+    given_history_list_generate_score_files_for_sensitivity(
         history_list,
         hydra_job_dir,
         job_uuid,
         hydra_job_num,
         range_of_distance_for_local_score=np.arange(0.5, 4, 0.5),
     )
-    for filepath in os.listdir(hydra_job_dir):
-        if ".pkl" in filepath:
-            os.remove(hydra_job_dir + "/" + filepath)
+    # for filepath in os.listdir(hydra_job_dir):
+    #     if ".pkl" in filepath:
+    #         os.remove(hydra_job_dir + "/" + filepath)
 
     # list_of_local_polarizations = []
     # list_of_coresponding_local_density = []

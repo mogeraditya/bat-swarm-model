@@ -22,6 +22,7 @@ from scores.milling_score import compute_milling
 from scores.nearest_neighbour_distance import compute_nearest_neighbour_distance
 from scores.polarization_score import compute_polarization
 from scores.space_occupied_scores import space_occupied_score
+from scores.time_spent_rotating import compute_time_spent_rotating
 from supporting_files.utilities import load_parameters
 
 
@@ -221,6 +222,9 @@ def given_history_list_generate_score_files_for_sensitivity(
         timeseries_cumulative_bat_bat_collision,
     ) = compute_collision_counts_and_length(bat_positions_list, parameters_df)
     space_occupied_counter = space_occupied_score(parameters_df, bat_positions_list)
+    time_spent_rotating_score = compute_time_spent_rotating(
+        history_lists, parameters_df
+    )
 
     list_of_score_summary = [
         [job_id],
@@ -229,6 +233,7 @@ def given_history_list_generate_score_files_for_sensitivity(
         [batbat_collision_counter],
         [wall_collision_counter],
         [space_occupied_counter],
+        [np.max(time_spent_rotating_score)],
     ]
 
     list_of_summary_keys = [
@@ -238,6 +243,7 @@ def given_history_list_generate_score_files_for_sensitivity(
         "interbat collision total",
         "wall collision total",
         "space_occupied",
+        "time_spent_rotating",
     ]
 
     dict_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))

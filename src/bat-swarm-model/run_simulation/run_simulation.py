@@ -53,7 +53,13 @@ def run_simulation(cfg: DictConfig) -> None:
     print(cfg)
     print(hydra_parent_dir)
 
-    sim = Simulation(cfg, OUTPUT_DIR, store_history=True, store_data_for_plotting=True)
+    sim = Simulation(
+        cfg,
+        OUTPUT_DIR,
+        store_history=True,
+        store_data_for_plotting=True,
+        termination_criteria="distance",
+    )
     sim.run()
 
     visualize(

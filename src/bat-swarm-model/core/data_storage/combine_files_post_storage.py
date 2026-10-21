@@ -70,7 +70,7 @@ def load_history_dump(file_path):
 
 
 def merge_csvs(input_folder, output_file):
-    files = glob.glob(f"{input_folder}/**/*.csv", recursive=True)
+    files = glob.glob(f"{input_folder}/**/**/*.csv", recursive=True)
     if not files:
         print("No CSV files found")
         return

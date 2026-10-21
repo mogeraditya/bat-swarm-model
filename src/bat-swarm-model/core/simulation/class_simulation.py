@@ -60,6 +60,7 @@ class Simulation:
         store_history=True,
         store_data_for_plotting=True,
         use_hydra=True,
+        termination_criteria="time",
     ):
         if use_hydra:
             parameters_df = cfg_to_flat_dict(cfg)
@@ -103,6 +104,8 @@ class Simulation:
         self.store_data_for_plotting = store_data_for_plotting
         self.rounding_based_on_time_step = len(str(time_step_size).split(".")[1])
 
+        self.termination_criteria = termination_criteria
+
     def run(self):
         """Runs one instance of the simulation.
         After parsing the parameter file, it runs one instance of the simulation
@@ -127,20 +130,49 @@ class Simulation:
         else:
             raise ValueError("unsupported temporal masking fn")
 
+        # save initial snapshot of the simulation
+        self.history.append(self.convert_necessary_information_into_dict())
+
+        start_timing = datetime.now()
+        # list_time_taken_for_each_loop = []
+        # save_time_of_last_iter = start_timing
+        if self.termination_criteria == "time":
+            current_loop_timing = self.run_simulation_for_given_time(
+                temporal_masking_file
+            )
+        elif self.termination_criteria == "distance":
+            current_loop_timing = self.run_simulation_for_given_agent_distance(
+                temporal_masking_file
+            )
+        else:
+            raise ValueError("unsupported termination criteria")
+
+        if self.store_history:
+            handle_data_storage(
+                self.time_elapsed,
+                True,
+                self.history,
+                self.parameters_df,
+                self.dir_to_store,
+                self.store_data_for_plotting,
+            )
+            # self.handle_data_storage_for_plotting(self.time_elapsed, True)
+
+        print(self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"])
+        print(f"total_time_taken_to_store_info: {current_loop_timing-start_timing}")
+        # print(f"average_time_per_loop {np.mean(list_time_taken_for_each_loop)}")
+        if self.store_history:
+            print("DATA SAVED")
+
+    def run_simulation_for_given_time(self, temporal_masking_file):
         time_array = np.round(
             np.arange(
                 0, self.parameters_df["SIM_DURATION"], self.parameters_df["TIME_STEP"]
             ),
             self.rounding_based_on_time_step,
         )
-        # save initial snapshot of the simulation
-        self.history.append(self.convert_necessary_information_into_dict())
 
-        start_timing = datetime.now()
-        list_time_taken_for_each_loop = []
-        save_time_of_last_iter = start_timing
-
-        for time_step in time_array[1:]:
+        for time_step in tqdm(time_array[1:]):
             # print(time_step)
             try:
                 self.time_elapsed = time_step
@@ -168,11 +200,71 @@ class Simulation:
                 self.history.append(self.convert_necessary_information_into_dict())
                 # print(self.convert_necessary_information_into_dict())
                 current_loop_time = datetime.now()
-                list_time_taken_for_each_loop.append(
-                    current_loop_time - save_time_of_last_iter
-                )
+                # list_time_taken_for_each_loop.append(
+                #     current_loop_time - save_time_of_last_iter
+                # )
 
-                save_time_of_last_iter = current_loop_time
+                # save_time_of_last_iter = current_loop_time
+
+                if self.store_history:
+                    clear_history = handle_data_storage(
+                        self.time_elapsed,
+                        False,
+                        self.history,
+                        self.parameters_df,
+                        self.dir_to_store,
+                        self.store_data_for_plotting,
+                    )
+                    self.history = (
+                        [] if clear_history else self.history
+                    )  # clear history after storing to save memory.
+
+            except BaseException:
+                print("Unexpected error:", sys.exc_info()[0])
+                print(
+                    f"error in file {self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"]}"
+                )
+                break
+        return current_loop_time
+
+    def run_simulation_for_given_agent_distance(self, temporal_masking_file):
+        distance_covered_by_agents = [bat.log_distance_moved for bat in self.bats]
+        min_distance_covered = np.min(distance_covered_by_agents)
+        time_step = 0
+        while min_distance_covered < self.parameters_df["DISTANCE_CAP"]:
+
+            time_step += self.parameters_df["TIME_STEP"]
+            try:
+                self.time_elapsed = time_step
+
+                for sound in self.sound_objects:
+                    sound.update(self.time_elapsed)
+
+                for bat in self.bats:
+                    bat.update(
+                        self.time_elapsed, self.sound_objects, temporal_masking_file
+                    )
+
+                for jammer in self.jammers:
+                    jammer.update(self.time_elapsed, self.sound_objects)
+
+                self.handle_reflections(self.time_elapsed)
+
+                self.sound_objects = [
+                    s
+                    for s in self.sound_objects
+                    if s.active
+                    and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
+                ]
+
+                self.history.append(self.convert_necessary_information_into_dict())
+                # print(self.convert_necessary_information_into_dict())
+                current_loop_time = datetime.now()
+                # list_time_taken_for_each_loop.append(
+                #     current_loop_time - save_time_of_last_iter
+                # )
+
+                # save_time_of_last_iter = current_loop_time
 
                 if self.store_history:
                     clear_history = handle_data_storage(
@@ -194,22 +286,10 @@ class Simulation:
                 )
                 break
 
-        if self.store_history:
-            handle_data_storage(
-                self.time_elapsed,
-                True,
-                self.history,
-                self.parameters_df,
-                self.dir_to_store,
-                self.store_data_for_plotting,
-            )
-            # self.handle_data_storage_for_plotting(self.time_elapsed, True)
+            distance_covered_by_agents = [bat.log_distance_moved for bat in self.bats]
+            min_distance_covered = np.min(distance_covered_by_agents)
 
-        print(self.parameters_df["OUTPUT_DIR_FOR_SIMULATION"])
-        print(f"total_time_taken_to_store_info: {save_time_of_last_iter-start_timing}")
-        print(f"average_time_per_loop {np.mean(list_time_taken_for_each_loop)}")
-        if self.store_history:
-            print("DATA SAVED")
+        return current_loop_time
 
     def convert_necessary_information_into_dict(self):
         """Handles information storage of simulation.
@@ -232,6 +312,7 @@ class Simulation:
             "bat_call_time": [bat.emit_times[-1] for bat in self.bats],
             "bat_positions": bat_positions,
             "bat_directions": bat_directions,
+            "is_bat_rotating": [bat.is_bat_rotating for bat in self.bats],
             # "sound_objects": [
             #     self.serialize_sound(s)
             #     for s in self.sound_objects
@@ -261,26 +342,26 @@ class Simulation:
             "bat_ipi_matrix_for_sensory_volume": [
                 bat.ipi_matrix_for_sensory_volume for bat in self.bats
             ],
-            # "polarization_score": compute_polarization(bat_directions),
-            # "local_polarization_score": compute_local_polarization(
-            #     bat_directions, bat_positions, self.parameters_df, 2, "mean"
-            # )[0],
-            # "local_polarization_score_list": [
-            #     compute_local_polarization(
-            #         bat_directions, bat_positions, self.parameters_df, 2, bat.id
-            #     )[0]
-            #     for bat in self.bats
-            # ],
-            # "local_density_score": compute_local_polarization(
-            #     bat_directions, bat_positions, self.parameters_df, 2, "mean"
-            # )[1],
-            # "local_density_score_list": [
-            #     compute_local_polarization(
-            #         bat_directions, bat_positions, self.parameters_df, 2, bat.id
-            #     )[1]
-            #     for bat in self.bats
-            # ],
-            # "milling_score": compute_milling(bat_directions, bat_positions),
+            "polarization_score": compute_polarization(bat_directions),
+            "local_polarization_score": compute_local_polarization(
+                bat_directions, bat_positions, self.parameters_df, 2, "mean"
+            )[0],
+            "local_polarization_score_list": [
+                compute_local_polarization(
+                    bat_directions, bat_positions, self.parameters_df, 2, bat.id
+                )[0]
+                for bat in self.bats
+            ],
+            "local_density_score": compute_local_polarization(
+                bat_directions, bat_positions, self.parameters_df, 2, "mean"
+            )[1],
+            "local_density_score_list": [
+                compute_local_polarization(
+                    bat_directions, bat_positions, self.parameters_df, 2, bat.id
+                )[1]
+                for bat in self.bats
+            ],
+            "milling_score": compute_milling(bat_directions, bat_positions),
         }
 
         return dictionary_w_information

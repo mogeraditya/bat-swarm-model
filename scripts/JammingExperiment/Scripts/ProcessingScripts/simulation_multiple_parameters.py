@@ -58,6 +58,7 @@ def run_one_instance_of_simulation(
         store_history=True,
         store_data_for_plotting=True,
         use_hydra=False,
+        termination_criteria="distance",
     )
     sim.bats[0].position = initial_release_point
     sim.run()
@@ -77,7 +78,7 @@ def run_one_instance_of_simulation(
     )
 
     for filepath in os.listdir(job_dir):
-        if ".pkl" in filepath and "history_dump" in filepath:
+        if ".pkl" in filepath or "*.json" in filepath:
             os.remove(job_dir + "/" + filepath)
         elif "_initial.pkl" in filepath:
             os.remove(job_dir + "/" + filepath)
@@ -157,6 +158,6 @@ if __name__ == "__main__":
     parallel_process_with_pool(
         param_dir=PARAM_DIR,
         data_storage_dir=DATA_STORAGE_DIR,
-        max_workers=10,
+        max_workers=None,
         initial_release_point=chosen_start_location,
     )

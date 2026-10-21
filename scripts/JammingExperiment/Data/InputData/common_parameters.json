@@ -1,6 +1,7 @@
 {
     "SIM_DURATION": 60,
     "TIME_STEP": 0.001,
+    "DISTANCE_CAP": 70,
     "NUM_BATS": 1,
     "JAMMER_RESOLUTION": 0.8,
     "OBSTACLE_COUNT": 0,

@@ -78,7 +78,7 @@ def run_one_instance_of_simulation(
     )
 
     for filepath in os.listdir(job_dir):
-        if ".pkl" in filepath or "*.json" in filepath:
+        if ".pkl" in filepath or ".json" in filepath:
             os.remove(job_dir + "/" + filepath)
         elif "_initial.pkl" in filepath:
             os.remove(job_dir + "/" + filepath)

@@ -49,30 +49,33 @@ def stitch_together_pickle_history_lists_and_store(
     return list_containing_data_from_all_pickle_files
 
 
-def load_history_dump(file_path):
-    """Load data from an HDF5 file saved by handle_data_storage_for_plotting.
+def merge_summary_files(results_dir, output_file=None):
+    """Merges the summary_dataframe csv of every job folder into one csv,
+    keeping a single header (pd.concat as in
+    https://stackoverflow.com/a/30335657).
 
     Args:
-        file_path (str): Path to the .h5 file (e.g., "history_dump_001234567.h5")
+        results_dir (string): directory containing one folder per job.
+        output_file (string, optional): path of the merged csv. Defaults to
+            results_dir/summary_all_jobs.csv.
 
     Returns:
-        dict: Dictionary containing all stored data (arrays and attributes)
+        DataFrame: merged summary, one row per job.
     """
-    data = {}
-    with h5py.File(file_path, "r") as f:
-        # Load datasets (arrays)
-        for key in f.keys():
-            data[key] = f[key][:]
-        # Load attributes (non-array metadata)
-        for key in f.attrs.keys():
-            data[key] = f.attrs[key]
-    return data
+    if output_file is None:
+        output_file = results_dir + f"/summary_all_jobs.csv"
 
+    summary_files = glob.glob(results_dir + "/*/*/*/summary_dataframe_job_*.csv")
+    # print(summary_files)
+    merged_df = pd.concat(
+        (
+            pd.read_csv(summary_file, index_col=0)
+            for summary_file in tqdm(summary_files)
+        ),
+        ignore_index=True,
+    )
+    merged_df = merged_df.sort_values("job id", ignore_index=True)
+    merged_df.to_csv(output_file, index=False)
 
-def merge_csvs(input_folder, output_file):
-    files = glob.glob(f"{input_folder}/**/**/*.csv", recursive=True)
-    if not files:
-        print("No CSV files found")
-        return
-    pd.concat([pd.read_csv(f) for f in files]).to_csv(output_file, index=False)
-    print(f"Merged {len(files)} files into {output_file}")
+    print(f"merged {len(summary_files)} summary files into {output_file}")
+    return merged_df

@@ -23,7 +23,7 @@ def handle_data_storage_for_plotting(
     else:
         history_array_size_limit = parameters_df["CLEANUP_PLOT_DATA"]
 
-        if len(history) >= history_array_size_limit or is_end_of_code:
+        if history and (len(history) >= history_array_size_limit or is_end_of_code):
             time_stamp = f"{current_time:.4f}".zfill(9)
             with gzip.open(
                 dir_to_store + f"history_dump_{time_stamp}.pkl.gz",

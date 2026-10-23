@@ -189,8 +189,10 @@ def given_history_list_generate_score_files(
     list_of_score_summary.extend(list_of_local_polarization_summary)
     list_of_summary_keys.extend(keys_for_local_polarization_summary)
 
-    dataframe_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
-    dataframe_score_summary = pd.DataFrame.from_dict(dataframe_score_summary)
+    dict_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
+
+    merged_dict_with_params = dict_score_summary | parameters_df
+    dataframe_score_summary = pd.DataFrame.from_dict(merged_dict_with_params)
 
     dataframe_timeseries.to_csv(
         data_dir + f"/timeseries_dataframe_job_{job_id}_run{run_id}.csv"
@@ -247,6 +249,7 @@ def given_history_list_generate_score_files_for_sensitivity(
     ]
 
     dict_score_summary = dict(zip(list_of_summary_keys, list_of_score_summary))
+
     merged_dict_with_params = dict_score_summary | parameters_df
     dataframe_score_summary = pd.DataFrame.from_dict(merged_dict_with_params)
 

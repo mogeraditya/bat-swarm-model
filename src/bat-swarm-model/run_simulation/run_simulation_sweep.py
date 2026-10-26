@@ -74,7 +74,7 @@ def run_simulation(cfg: DictConfig) -> None:
         f"job_number_{hydra_job_num}",
     )
 
-    given_history_list_generate_score_files_for_sensitivity(
+    given_history_list_generate_score_files(
         history_list,
         hydra_job_dir,
         job_uuid,
@@ -121,9 +121,9 @@ def run_simulation(cfg: DictConfig) -> None:
             "arena",
             "polarization_milling",
             "info_text",
-            "ipi_radial",
-            "sum_radial",
-            "sensory_volume",
+            # "ipi_radial",
+            # "sum_radial",
+            # "sensory_volume",
         ],
     )
 

@@ -21,6 +21,7 @@ def _():
 @app.cell(hide_code=True)
 def _(pd):
     scores_dataframe = pd.read_csv("./Data/AnalysisData/sensitivity_analysis_summary_scores.csv")
+    scores_dataframe = scores_dataframe[scores_dataframe["duration"]*0.001*scores_dataframe["BAT_FAST_SPEED"]>70]
     return (scores_dataframe,)
 
 
@@ -158,7 +159,7 @@ def _(
 def _(labels, number_of_subfigs, plt, scores_dataframe, sns, varying_params):
     plt.figure(figsize=(25,20))
     for i_d, param_d in enumerate(varying_params):
-        df_low_durations_given_bat_speed = scores_dataframe[(scores_dataframe["duration"]<25000) & (scores_dataframe["wall collision total"]<5) & (scores_dataframe["space_occupied"]>130)]
+        df_low_durations_given_bat_speed = scores_dataframe[(scores_dataframe["duration"]<25000) & (scores_dataframe["wall collision total"]<5) & (scores_dataframe["space_occupied"]>100)]
         plt.subplot(3,number_of_subfigs,i_d+1)
         plt.grid(True, alpha=0.3)
         plt.tight_layout()

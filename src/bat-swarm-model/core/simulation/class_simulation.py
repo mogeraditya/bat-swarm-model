@@ -10,7 +10,9 @@ from datetime import datetime
 import hydra
 import numpy as np
 from omegaconf import DictConfig, OmegaConf
-from tqdm.rich import tqdm
+
+# from tqdm.rich import tqdm
+from tqdm.auto import tqdm
 
 # from supporting_files.store_history import CompactHistoryManager
 
@@ -92,7 +94,12 @@ class Simulation:
             for _ in range(int(self.parameters_df["OBSTACLE_COUNT"]))
         ]
         self.jammers = make_jammers(self.parameters_df)
-        self.wall_objects = make_walls(self.parameters_df)
+        if self.parameters_df["ARENA_TYPE"] == "bounded":
+            self.wall_objects = make_walls(self.parameters_df)
+        elif self.parameters_df["ARENA_TYPE"] == "open":
+            self.wall_objects = []
+        else:
+            raise ValueError("Unrecognised arena type")
 
         self.sound_objects = []  # Contains both DirectSound and EchoSound
 
@@ -231,9 +238,11 @@ class Simulation:
         distance_covered_by_agents = [bat.log_distance_moved for bat in self.bats]
         min_distance_covered = np.min(distance_covered_by_agents)
         time_step = 0
+        t = tqdm(desc="while loop", total=self.parameters_df["DISTANCE_CAP"])
         while min_distance_covered < self.parameters_df["DISTANCE_CAP"]:
-
+            min_distance_covered_in_last_loop = min_distance_covered
             time_step += self.parameters_df["TIME_STEP"]
+
             try:
                 self.time_elapsed = time_step
 
@@ -288,6 +297,7 @@ class Simulation:
 
             distance_covered_by_agents = [bat.log_distance_moved for bat in self.bats]
             min_distance_covered = np.min(distance_covered_by_agents)
+            t.update(min_distance_covered - min_distance_covered_in_last_loop)
 
         return current_loop_time
 
@@ -343,26 +353,26 @@ class Simulation:
             "bat_ipi_matrix_for_sensory_volume": [
                 bat.ipi_matrix_for_sensory_volume for bat in self.bats
             ],
-            # "polarization_score": compute_polarization(bat_directions),
-            # "local_polarization_score": compute_local_polarization(
-            #     bat_directions, bat_positions, self.parameters_df, 2, "mean"
-            # )[0],
-            # "local_polarization_score_list": [
-            #     compute_local_polarization(
-            #         bat_directions, bat_positions, self.parameters_df, 2, bat.id
-            #     )[0]
-            #     for bat in self.bats
-            # ],
-            # "local_density_score": compute_local_polarization(
-            #     bat_directions, bat_positions, self.parameters_df, 2, "mean"
-            # )[1],
-            # "local_density_score_list": [
-            #     compute_local_polarization(
-            #         bat_directions, bat_positions, self.parameters_df, 2, bat.id
-            #     )[1]
-            #     for bat in self.bats
-            # ],
-            # "milling_score": compute_milling(bat_directions, bat_positions),
+            "polarization_score": compute_polarization(bat_directions),
+            "local_polarization_score": compute_local_polarization(
+                bat_directions, bat_positions, self.parameters_df, 2, "mean"
+            )[0],
+            "local_polarization_score_list": [
+                compute_local_polarization(
+                    bat_directions, bat_positions, self.parameters_df, 2, bat.id
+                )[0]
+                for bat in self.bats
+            ],
+            "local_density_score": compute_local_polarization(
+                bat_directions, bat_positions, self.parameters_df, 2, "mean"
+            )[1],
+            "local_density_score_list": [
+                compute_local_polarization(
+                    bat_directions, bat_positions, self.parameters_df, 2, bat.id
+                )[1]
+                for bat in self.bats
+            ],
+            "milling_score": compute_milling(bat_directions, bat_positions),
         }
 
         return dictionary_w_information

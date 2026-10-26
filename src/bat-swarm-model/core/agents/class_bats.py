@@ -190,7 +190,7 @@ class Bat:
 
         # check if sufficient time has passed since last call.
         if self.time_since_last_call >= call_interval:
-            self.next_direction = self.direction
+            # self.next_direction = self.direction
             # sound object to be emitted
             sound = DirectSound(
                 parameters_df=self.parameters_df,

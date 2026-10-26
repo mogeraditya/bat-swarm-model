@@ -15,8 +15,7 @@ sys.path.extend(
         "./src/bat-swarm-model/plot/",
     ]
 )
-from data_storage.combine_files_post_storage import (
-    merge_csvs,
+from data_storage.combine_files_post_storage import (  # merge_csvs,
     stitch_together_pickle_history_lists_and_store,
 )
 from scores.run_all_score_calculations import (
@@ -61,6 +60,7 @@ def run_one_instance_of_simulation(
         termination_criteria="distance",
     )
     sim.bats[0].position = initial_release_point
+    sim.bats[0].direction = Vector(1, 0)
     sim.run()
 
     history_list = stitch_together_pickle_history_lists_and_store(
@@ -138,7 +138,7 @@ def parallel_process_with_pool(
         )
 
     end_time = time.time()
-    merge_csvs(data_storage_dir, data_storage_dir + "summary_merged.csv")
+    # merge_csvs(data_storage_dir, data_storage_dir + "summary_merged.csv")
     print(f"Pool processing completed in {end_time - start_time:.2f} seconds")
 
 

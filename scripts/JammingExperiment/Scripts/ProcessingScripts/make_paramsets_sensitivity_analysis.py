@@ -23,7 +23,7 @@ make_dir(dir_to_store)
 
 
 NUM_BATS_VALUES = [1]
-SEEDS = [55, 89, 144, 233, 377]
+SEEDS = [67, 69, 420, 80085, 1337]
 CALL_RATES_FAST = [10, 20]
 CALL_DIRECTIONALITYS = [4, 7, 10]
 EMITTED_SPLS = [80, 100, 140]
@@ -31,8 +31,8 @@ HEARING_THRESHOLDS = [20, 40, 60]
 RADIAL_RESOLUTIONS = [0.002, 0.004, 0.006]
 ANGULAR_RESOLUTIONS = [15, 30, 60]
 BAT_FRONTAL_RANGES = [30, 60, 90]
-CONSISTENCY_TIME_DELAY_CAPS = [0.008, 0.011, 0.014, 0.026]
-CONSISTENCY_WINDOWS = [1, 3, 5, 7]
+CONSISTENCY_TIME_DELAY_CAPS = [0.008, 0.011, 0.014]
+CONSISTENCY_WINDOWS = [3, 5, 7]
 
 # number_of_consistent_ipis_for_movement = np.ceil(
 #     np.array(memory_window_for_consistency) / 2

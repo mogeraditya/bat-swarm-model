@@ -312,6 +312,7 @@ class Simulation:
             "bat_call_time": [bat.emit_times[-1] for bat in self.bats],
             "bat_positions": bat_positions,
             "bat_directions": bat_directions,
+            "bat_distance_covered": [bat.log_distance_moved for bat in self.bats],
             "is_bat_rotating": [bat.is_bat_rotating for bat in self.bats],
             # "sound_objects": [
             #     self.serialize_sound(s)

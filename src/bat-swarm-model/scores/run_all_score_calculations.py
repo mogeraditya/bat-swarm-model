@@ -211,7 +211,7 @@ def given_history_list_generate_score_files_for_sensitivity(
     job_id,
     range_of_distance_for_local_score,
 ):
-
+    distance_covered = history_lists[-1]["bat_distance_covered"][0]
     bat_positions_list, bat_directions_list = filter_bat_positions_from_history(
         history_lists
     )
@@ -232,6 +232,7 @@ def given_history_list_generate_score_files_for_sensitivity(
         [job_id],
         [run_id],
         [duration],
+        [distance_covered],
         [batbat_collision_counter],
         [wall_collision_counter],
         [space_occupied_counter],
@@ -242,6 +243,7 @@ def given_history_list_generate_score_files_for_sensitivity(
         "job id",
         "job uuid",
         "duration",
+        "distance travelled",
         "interbat collision total",
         "wall collision total",
         "space_occupied",

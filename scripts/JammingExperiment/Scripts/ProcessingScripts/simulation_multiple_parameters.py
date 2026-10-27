@@ -69,16 +69,16 @@ def run_one_instance_of_simulation(
         f"job_number_{job_num}",
     )
 
-    given_history_list_generate_score_files_for_sensitivity(
-        history_list,
-        job_dir,
-        job_uuid,
-        job_num,
-        range_of_distance_for_local_score=np.arange(0.5, 4, 0.5),
-    )
+    # given_history_list_generate_score_files_for_sensitivity(
+    #     history_list,
+    #     job_dir,
+    #     job_uuid,
+    #     job_num,
+    #     range_of_distance_for_local_score=np.arange(0.5, 4, 0.5),
+    # )
 
     for filepath in os.listdir(job_dir):
-        if ".pkl" in filepath or ".json" in filepath:
+        if "history_dump" in filepath or ".json" in filepath:
             os.remove(job_dir + "/" + filepath)
         elif "_initial.pkl" in filepath:
             os.remove(job_dir + "/" + filepath)

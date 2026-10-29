@@ -313,7 +313,7 @@ def _(pareto_solutions_df, sns):
 @app.cell
 def _(mo, varying_params):
     slider_param = mo.ui.slider(start=0, stop=len(varying_params)-1, step=1, label="param")
-    slider_collision = mo.ui.slider(start=0, stop=15, step=1, label="wall collision cap", value=0)
+    slider_collision = mo.ui.slider(start=0, stop=15, step=1, label="wall collision cap", value=3)
     mo.vstack([slider_param, slider_collision])
     return slider_collision, slider_param
 
@@ -423,7 +423,13 @@ def _(
 
 
 @app.cell
-def _():
+def _(
+    pareto_solutions_df,
+    plot_interactive_pareto,
+    slider_collision,
+    varying_params,
+):
+    plot_interactive_pareto(pareto_solutions_df, pareto_solutions_df["wall collision total"]<slider_collision.value,"./scatter_plot_pareto_subset.html", varying_params, plot_non_pareto=False)
     return
 
 

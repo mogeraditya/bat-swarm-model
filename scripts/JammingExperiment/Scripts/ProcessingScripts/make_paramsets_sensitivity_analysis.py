@@ -18,7 +18,7 @@ from supporting_files.utilities import load_parameters, make_dir
 simulation_parameters = load_parameters(
     r"./scripts/JammingExperiment/Data/InputData/common_parameters.json"
 )
-dir_to_store = r"./scripts/JammingExperiment/Data/InputData/sensitivity_params/"
+dir_to_store = r"./scripts/JammingExperiment/Data/InputData/good_boys_no_jamming/"
 make_dir(dir_to_store)
 
 
@@ -70,9 +70,28 @@ list_of_combinations = list(product(*array_of_param_values))
 print(len(list(product(*array_of_param_values))))
 
 output_dir_counter = 0
+good_boys = [
+    "paramset_20175",
+    "paramset_22437",
+    "paramset_22470",
+    "paramset_33459",
+    "paramset_35508",
+    "paramset_48654",
+    "paramset_48702",
+    "paramset_59544",
+    "paramset_59632",
+    "paramset_59644",
+    "paramset_61734",
+    "paramset_7225",
+    "paramset_9270",
+    "paramset_9402",
+]
+
 
 for item in list_of_combinations:
-    # if output_dir_counter in error_files:
+    if f"paramset_{output_dir_counter}" not in good_boys:
+        output_dir_counter += 1
+        continue
     simulation_parameters["OUTPUT_DIR_FOR_SIMULATION"] = (
         f"/sensitivity_analysis/paramset_{output_dir_counter}/"
     )
@@ -91,8 +110,7 @@ for item in list_of_combinations:
 
     make_dir(dir_to_store + f"/sensitivity_params_{mod_bin}")
     with open(
-        dir_to_store
-        + f"/sensitivity_params_{mod_bin}/paramset_number_{output_dir_counter}.json",
+        dir_to_store + f"/paramset_number_{output_dir_counter}.json",
         "w",
         encoding="utf-8",
     ) as fp:

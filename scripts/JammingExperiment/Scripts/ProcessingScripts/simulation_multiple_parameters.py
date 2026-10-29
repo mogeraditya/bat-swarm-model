@@ -144,7 +144,7 @@ def parallel_process_with_pool(
 
 if __name__ == "__main__":
     # Directory containing your parameter files
-    PARAM_DIR = "./scripts/JammingExperiment/Data/InputData/sensitivity_params/"
+    PARAM_DIR = "./scripts/JammingExperiment/Data/InputData/good_boys/"
 
     N_RUNS = 1  # Number of iterations per parameter set
     DATA_STORAGE_DIR = r"./sensitivity_analysis/"  # Base output directory

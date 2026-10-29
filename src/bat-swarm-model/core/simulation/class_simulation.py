@@ -324,11 +324,11 @@ class Simulation:
             "bat_directions": bat_directions,
             "bat_distance_covered": [bat.log_distance_moved for bat in self.bats],
             "is_bat_rotating": [bat.is_bat_rotating for bat in self.bats],
-            # "sound_objects": [
-            #     self.serialize_sound(s)
-            #     for s in self.sound_objects
-            #     if s.active and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
-            # ],
+            "sound_objects": [
+                self.serialize_sound(s)
+                for s in self.sound_objects
+                if s.active and s.current_spl > self.parameters_df["HEARING_THRESHOLD"]
+            ],
             "sound_objects_count": len(self.sound_objects),
             "jammer_positions": [
                 (jammer.position.x, jammer.position.y) for jammer in self.jammers

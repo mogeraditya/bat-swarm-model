@@ -315,6 +315,7 @@ def given_time_and_angle_return_direction_loudest_sound(
         response_type = "repulsion_passive"
     elif intensity > intensity_threshold_for_attraction:
         # print(f"attraction delay{corrected_time_delay}")
+        # angle_of_next_direction += np.pi / 2
         response_type = "attraction_passive"
     else:
         raise ValueError(

@@ -9,5 +9,7 @@ sys.path.extend(
 )
 from data_storage.combine_files_post_storage import merge_summary_files
 
-data_storage_dir = "/home/adityamoger/Documents/delicious_balls_for_testing/"
-merge_summary_files(data_storage_dir, data_storage_dir + "summary_merged.csv")
+data_storage_dir = "/media/adityamoger/T7/run_simulation_for_optima/"
+merge_summary_files(
+    data_storage_dir, data_storage_dir + "summary_merged_26_10_2026.csv"
+)

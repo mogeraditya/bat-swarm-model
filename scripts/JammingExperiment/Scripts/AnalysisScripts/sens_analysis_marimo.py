@@ -20,9 +20,16 @@ def _():
 
 @app.cell(hide_code=True)
 def _(pd):
-    scores_dataframe = pd.read_csv("./Data/AnalysisData/sensitivity_analysis_summary_scores.csv")
-    scores_dataframe = scores_dataframe[scores_dataframe["duration"]*0.001*scores_dataframe["BAT_FAST_SPEED"]>70]
+    scores_dataframe = pd.read_csv("/media/adityamoger/T7/run_simulation_for_optima/summary_merged_26_10_2026.csv")
+    # scores_dataframe = scores_dataframe[scores_dataframe["duration"]*0.001*scores_dataframe["BAT_FAST_SPEED"]>70]
     return (scores_dataframe,)
+
+
+@app.cell
+def _(plt, scores_dataframe):
+    # diagnostics
+    plt.hist(scores_dataframe["SPL_THRESHOLD_FOR_ATTRACTION"])
+    return
 
 
 @app.cell(hide_code=True)
@@ -148,7 +155,7 @@ def _(
         plt.xlabel("bat speed")
         # plt.legend(title="balls")
         plt.legend(title= labels[list(varying_params).index(param)])
-        
+
     plt.savefig("param_counts_10.svg", transparent= True)
     plt.show()
     plt.clf()
@@ -168,7 +175,7 @@ def _(labels, number_of_subfigs, plt, scores_dataframe, sns, varying_params):
         plt.xlabel(labels[list(varying_params).index(param_d)])
         # plt.legend(title="balls")
         # plt.legend(title= labels[list(varying_params).index(param_d)])
-        
+
     plt.savefig("param_counts_10.svg", transparent= True)
     plt.show()
     plt.clf()
@@ -218,7 +225,6 @@ def _(mo):
     mo._runtime.context.get_context().marimo_config["runtime"][
         "output_max_bytes"
     ] = 16_000_000
-
     return (px,)
 
 
@@ -227,21 +233,21 @@ def _(np):
     def find_pareto_front(df, obj_cols):
         """
         Find Pareto optimal points in a DataFrame.
-    
+
         Parameters:
         - df: DataFrame with columns in obj_cols
         - obj_cols: list of column names: ['wall collision total', 'space_occupied', 'duration']
-    
+
         Returns:
         - Boolean mask: True for Pareto optimal points
         """
         # Extract objective values
         data = df[obj_cols].values  # shape: (n, 3)
         n = len(data)
-    
+
         # Initialize mask: assume all are non-dominated initially
         is_pareto = [True] * n
-    
+
         # Compare each point against every other point
         for i in range(n):
             for j in range(n):
@@ -275,7 +281,7 @@ def _(find_pareto_front, px):
     def plot_interactive_pareto(summary_df, output_file, optimized_params):
         """
         Interactive 3D Pareto plot with highlighted Pareto optimal points and surface.
-    
+
         Objectives:
         - Minimize wall collision total
         - Maximize space_occupied
@@ -283,7 +289,7 @@ def _(find_pareto_front, px):
         """
         # Define objective columns
         obj_cols = ["wall collision total", "space_occupied", "duration"]
-    
+
         # Ensure all columns exist
         if not all(col in summary_df.columns for col in obj_cols):
             raise ValueError(f"Missing required columns: {obj_cols}")
@@ -320,7 +326,7 @@ def _(find_pareto_front, px):
             size_max = 0.1,
             color_discrete_sequence=["red"],
         )
-    
+
         # Add Pareto points to figure
         for trace in pareto_scatter.data:
             fig.add_trace(trace)
@@ -346,7 +352,7 @@ def _(find_pareto_front, px):
                     ))
             except Exception as e:
                 print("Could not compute convex hull:", e)
-    
+
         # Step 6: Update layout
         fig.update_layout(
             width=900,
@@ -391,7 +397,7 @@ def _(labels, number_of_subfigs, plt, scores_dataframe, sns, varying_params):
         plt.xlabel(labels[list(varying_params).index(param_d)])
         # plt.legend(title="balls")
         # plt.legend(title= labels[list(varying_params).index(param_d)])
-        
+
     plt.savefig("param_counts_10.svg", transparent= True)
     plt.show()
     plt.clf()

@@ -96,10 +96,13 @@ def given_history_list_generate_score_files(
     job_id,
     range_of_distance_for_local_score,
 ):
-
+    distance_covered = history_lists[-1]["bat_distance_covered"][0]
     bat_positions_list, bat_directions_list = filter_bat_positions_from_history(
         history_lists
     )
+    if len(bat_positions_list) > 1000:
+        bat_positions_list = bat_positions_list[1000:]
+        bat_directions_list = bat_directions_list[1000:]
     parameters_df = load_parameters(data_dir + "/parameters_used.json")
     duration = len(bat_positions_list)
     (
@@ -164,6 +167,7 @@ def given_history_list_generate_score_files(
         [job_id],
         [run_id],
         [duration],
+        [distance_covered],
         [batbat_collision_counter],
         [wall_collision_counter],
         [space_occupied_counter],
@@ -177,6 +181,7 @@ def given_history_list_generate_score_files(
         "job id",
         "job uuid",
         "duration",
+        "distance_covered",
         "interbat collision total",
         "wall collision total",
         "space_occupied",
@@ -256,7 +261,7 @@ def given_history_list_generate_score_files_for_sensitivity(
     dataframe_score_summary = pd.DataFrame.from_dict(merged_dict_with_params)
 
     dataframe_score_summary.to_csv(data_dir + f"/summary_dataframe_job_{job_id}.csv")
-    return dataframe_score_summary, batbat_collision_counter, wall_collision_counter
+    return (dataframe_score_summary, batbat_collision_counter, wall_collision_counter)
 
 
 # if __name__ == "__main__":

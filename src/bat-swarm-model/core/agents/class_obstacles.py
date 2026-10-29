@@ -12,7 +12,8 @@ class Obstacle:
         self.id = Obstacle._id_counter
         Obstacle._id_counter += 1
         self.parameters_df = parameters_df
-        if position == "random":
+
+        if isinstance(position, str) and position == "random":
             self.position = Vector(
                 random.uniform(
                     self.parameters_df["OBSTACLE_RADIUS"],
@@ -25,8 +26,11 @@ class Obstacle:
                     - self.parameters_df["OBSTACLE_RADIUS"],
                 ),
             )
+        # elif isinstance(position, list) or isinstance(position, tuple):
+        # self.position = Vector(position[0], position[1])
         else:
             self.position = Vector(position[0], position[1])
+            # raise ValueError("UNSUPPORTED position of obstacle")
         self.radius = radius  #
 
     # TODO: use this and implement avoidance on collision

@@ -185,6 +185,8 @@ class DirectSound(EchoSound):
         object_type = reflected_from[0:4]
         if object_type == "wall":
             reflection_loss = self.parameters_df["REFLECTION_LOSS_WALL"]
+        elif object_type == "obst":
+            reflection_loss = self.parameters_df["REFLECTION_LOSS_WALL"]
         else:
             reflection_loss = self.parameters_df["REFLECTION_LOSS"]
         # print(point, self.origin, self.wall_id, reflected_from)

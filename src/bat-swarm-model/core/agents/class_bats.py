@@ -161,14 +161,35 @@ class Bat:
                 self.position.x <= 0
                 or self.position.x >= self.parameters_df["ARENA_WIDTH"]
             ):
+                if self.position.x <= 0:
+                    self.position = Vector(
+                        self.position.x + self.radius, self.position.y
+                    )
+                else:
+                    self.position = Vector(
+                        self.position.x - self.radius, self.position.y
+                    )
+
                 self.direction.x *= -1
                 self.next_direction = self.direction
+                self.ipi_matrix_for_consistency_timeseries = []
+
             if (
                 self.position.y <= 0
                 or self.position.y >= self.parameters_df["ARENA_LENGTH"]
             ):
+                if self.position.y <= 0:
+                    self.position = Vector(
+                        self.position.x, self.position.y + self.radius
+                    )
+                else:
+                    self.position = Vector(
+                        self.position.x, self.position.y - self.radius
+                    )
+
                 self.direction.y *= -1
                 self.next_direction = self.direction
+                self.ipi_matrix_for_consistency_timeseries = []
 
         if self.parameters_df["ARENA_TYPE"] == "open":
             # in open case, the agents spawn at the other side of the wall based on direction
@@ -190,7 +211,7 @@ class Bat:
 
         # check if sufficient time has passed since last call.
         if self.time_since_last_call >= call_interval:
-            # self.next_direction = self.direction
+            self.next_direction = self.direction
             # sound object to be emitted
             sound = DirectSound(
                 parameters_df=self.parameters_df,
@@ -573,7 +594,7 @@ class Bat:
 
         current_direction = self.direction
 
-        rotation_time_delay = self.parameters_df["ROTATION_TIME_DELAY_CAP"]
+        rotation_time_delay = self.parameters_df["LOUDNESS_TIME_DELAY_CAP"]
 
         is_bat_processing = (current_time - self.emit_times[-1]) < rotation_time_delay
 

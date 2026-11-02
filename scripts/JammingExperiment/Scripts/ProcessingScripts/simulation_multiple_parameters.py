@@ -82,6 +82,8 @@ def run_one_instance_of_simulation(
             os.remove(job_dir + "/" + filepath)
         elif "_initial.pkl" in filepath:
             os.remove(job_dir + "/" + filepath)
+        elif ".pkl.gz" in filepath:
+            os.remove(job_dir + "/" + filepath)
 
     os.remove(dir_of_one_param_file)
 
@@ -144,7 +146,7 @@ def parallel_process_with_pool(
 
 if __name__ == "__main__":
     # Directory containing your parameter files
-    PARAM_DIR = "./scripts/JammingExperiment/Data/InputData/good_boys/"
+    PARAM_DIR = "./scripts/JammingExperiment/Data/InputData/test/"
 
     N_RUNS = 1  # Number of iterations per parameter set
     DATA_STORAGE_DIR = r"./sensitivity_analysis/"  # Base output directory

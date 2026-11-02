@@ -238,7 +238,7 @@ class Simulation:
         distance_covered_by_agents = [bat.log_distance_moved for bat in self.bats]
         min_distance_covered = np.min(distance_covered_by_agents)
         time_step = 0
-        t = tqdm(desc="while loop", total=self.parameters_df["DISTANCE_CAP"])
+        # t = tqdm(desc="while loop", total=self.parameters_df["DISTANCE_CAP"])
         while min_distance_covered < self.parameters_df["DISTANCE_CAP"]:
             min_distance_covered_in_last_loop = min_distance_covered
             time_step += self.parameters_df["TIME_STEP"]
@@ -297,7 +297,7 @@ class Simulation:
 
             distance_covered_by_agents = [bat.log_distance_moved for bat in self.bats]
             min_distance_covered = np.min(distance_covered_by_agents)
-            t.update(min_distance_covered - min_distance_covered_in_last_loop)
+            # t.update(min_distance_covered - min_distance_covered_in_last_loop)
 
         return current_loop_time
 

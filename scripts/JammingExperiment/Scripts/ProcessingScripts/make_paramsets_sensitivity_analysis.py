@@ -18,15 +18,15 @@ from supporting_files.utilities import load_parameters, make_dir
 simulation_parameters = load_parameters(
     r"./scripts/JammingExperiment/Data/InputData/common_parameters.json"
 )
-dir_to_store = r"./scripts/JammingExperiment/Data/InputData/good_boys_no_jamming/"
+dir_to_store = r"./scripts/JammingExperiment/Data/InputData/sensitivity_analysis/"
 make_dir(dir_to_store)
 
 
 NUM_BATS_VALUES = [1]
-SEEDS = [67, 69, 420, 80085, 1337]
+SEEDS = [67, 69, 420, 80085, 1337, 1, 10, 100, 1000, 10000]
 CALL_RATES_FAST = [10, 20]
 CALL_DIRECTIONALITYS = [4, 7, 10]
-EMITTED_SPLS = [80, 100, 140]
+# EMITTED_SPLS = [80, 100, 140]
 HEARING_THRESHOLDS = [20, 40, 60]
 RADIAL_RESOLUTIONS = [0.002, 0.004, 0.006]
 ANGULAR_RESOLUTIONS = [15, 30, 60]
@@ -44,7 +44,7 @@ array_of_param_values = [
     SEEDS,
     CALL_RATES_FAST,
     CALL_DIRECTIONALITYS,
-    EMITTED_SPLS,
+    # EMITTED_SPLS,
     HEARING_THRESHOLDS,
     RADIAL_RESOLUTIONS,
     ANGULAR_RESOLUTIONS,
@@ -57,7 +57,7 @@ array_of_param_labels = [
     "seed",
     "CALL_RATE_FAST",
     "CALL_DIRECTIONALITY",
-    "EMITTED_SPL",
+    # "EMITTED_SPL",
     "HEARING_THRESHOLD",
     "BAT_RADIAL_RESOLUTION",
     "BAT_ANGULAR_RESOLUTION",
@@ -70,28 +70,10 @@ list_of_combinations = list(product(*array_of_param_values))
 print(len(list(product(*array_of_param_values))))
 
 output_dir_counter = 0
-good_boys = [
-    "paramset_20175",
-    "paramset_22437",
-    "paramset_22470",
-    "paramset_33459",
-    "paramset_35508",
-    "paramset_48654",
-    "paramset_48702",
-    "paramset_59544",
-    "paramset_59632",
-    "paramset_59644",
-    "paramset_61734",
-    "paramset_7225",
-    "paramset_9270",
-    "paramset_9402",
-]
 
 
 for item in list_of_combinations:
-    if f"paramset_{output_dir_counter}" not in good_boys:
-        output_dir_counter += 1
-        continue
+
     simulation_parameters["OUTPUT_DIR_FOR_SIMULATION"] = (
         f"/sensitivity_analysis/paramset_{output_dir_counter}/"
     )
@@ -110,7 +92,8 @@ for item in list_of_combinations:
 
     make_dir(dir_to_store + f"/sensitivity_params_{mod_bin}")
     with open(
-        dir_to_store + f"/paramset_number_{output_dir_counter}.json",
+        dir_to_store
+        + f"/sensitivity_params_{mod_bin}/paramset_number_{output_dir_counter}.json",
         "w",
         encoding="utf-8",
     ) as fp:

@@ -88,7 +88,7 @@ def run_one_instance_of_simulation(
         focal_bat=0,
         modules=[
             "arena",
-            "polarization_milling",
+            # "polarization_milling",
             "info_text",
             # "ipi_radial",
             # "sum_radial",

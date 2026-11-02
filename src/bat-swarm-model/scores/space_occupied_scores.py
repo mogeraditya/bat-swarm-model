@@ -1,9 +1,10 @@
 import bisect
 
 import numpy as np
+from scipy.spatial import ConvexHull
 
 
-def space_occupied_score(parameters_df, bat_positions):
+def space_occupied_score(parameters_df, bat_positions, bat_id=0):
     """Score that handles space occupied by the agent in an arena
     Partition the space into coarse grid cells (0.5 m x 0.5 m) and count
     how many the agent walked over.
@@ -14,23 +15,14 @@ def space_occupied_score(parameters_df, bat_positions):
     Returns:
         int: number of unique grid cells agent was in
     """
-    # TODO : make this multi bat compatible.
-    arena_width = parameters_df["ARENA_WIDTH"]
-    arena_length = parameters_df["ARENA_LENGTH"]
 
-    x = np.arange(0, arena_width, 0.5)
-    y = np.arange(0, arena_length, 0.5)
-
-    track_unique_cells = []
-    # print(bat_positions)
+    points_of_bat_positions = []
     for bat_position_frame in bat_positions:
-        # print(bat_position_frame)
-        grid_x_index = bisect.bisect_left(x, bat_position_frame[0][0])
-        grid_y_index = bisect.bisect_left(y, bat_position_frame[0][1])
-        grid_cell_identity = str([grid_x_index, grid_y_index])
+        points_of_bat_positions.append(
+            [bat_position_frame[bat_id][0], bat_position_frame[bat_id][1]]
+        )
 
-        if grid_cell_identity not in track_unique_cells:
-            track_unique_cells.append(grid_cell_identity)
-    total_cells = len(x) * len(y)
-
-    return len(track_unique_cells)
+    hull = ConvexHull(points_of_bat_positions)
+    area = hull.volume
+    print("Convex hull area:", area)
+    return area

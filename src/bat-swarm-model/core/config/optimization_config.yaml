@@ -2,7 +2,7 @@ defaults:
   - arena: default
   - bat: default
   - override hydra/sweeper: optuna
-  - override hydra/sweeper/sampler: nsgaii
+  - override hydra/sweeper/sampler: GridSampler
   - override hydra/launcher: joblib
   - override hydra/job_logging: colorlog
   - override hydra/hydra_logging: colorlog

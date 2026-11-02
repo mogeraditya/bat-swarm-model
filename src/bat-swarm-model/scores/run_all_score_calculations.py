@@ -63,7 +63,7 @@ def take_history_store_scores(sim, sim_iteration_number):
     focal_bat = sim.bats[0]
     bat_positions = filter_bat_positions_from_history(sim.history)
 
-    space_occupied = space_occupied_score(sim.parameters_df, bat_positions)
+    space_occupied = space_occupied_score(sim.parameters_df, bat_positions, 0)
     collision_counts = compute_collision_counts_and_length(
         bat_positions, sim.parameters_df
     )
@@ -111,7 +111,7 @@ def given_history_list_generate_score_files(
         timeseries_cumulative_wall_collision,
         timeseries_cumulative_bat_bat_collision,
     ) = compute_collision_counts_and_length(bat_positions_list, parameters_df)
-    space_occupied_counter = space_occupied_score(parameters_df, bat_positions_list)
+    space_occupied_counter = space_occupied_score(parameters_df, bat_positions_list, 0)
     polarization_list = [
         compute_polarization(bat_directions) for bat_directions in bat_directions_list
     ]
@@ -228,7 +228,7 @@ def given_history_list_generate_score_files_for_sensitivity(
         timeseries_cumulative_wall_collision,
         timeseries_cumulative_bat_bat_collision,
     ) = compute_collision_counts_and_length(bat_positions_list, parameters_df)
-    space_occupied_counter = space_occupied_score(parameters_df, bat_positions_list)
+    space_occupied_counter = space_occupied_score(parameters_df, bat_positions_list, 0)
     time_spent_rotating_score = compute_time_spent_rotating(
         history_lists, parameters_df
     )

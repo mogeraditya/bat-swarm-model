@@ -33,6 +33,7 @@ from make_obstacles_based_on_poisson_disk_sample import make_obstacles
 # from plotting.polarization_milling_module import PolarizationMillingModule
 # from plotting.sensory_volume_module import SensoryVolumeModule
 from plotting.visualizer import visualize
+from scipy.spatial import ConvexHull
 from scores.run_all_score_calculations import (
     given_history_list_generate_score_files_for_sensitivity,
 )
@@ -99,22 +100,22 @@ def run_simulation(cfg: DictConfig) -> None:
         range_of_distance_for_local_score=np.arange(0.5, 4, 0.5),
     )
 
-    visualize(
-        output_dir=OUTPUT_DIR,
-        save_animation=hydra_parent_dir,
-        unique_id=f"job_number_{hydra_job_num}",
-        resolution=50,
-        show_sounds=False,
-        focal_bat=0,
-        modules=[
-            "arena",
-            "polarization_milling",
-            "info_text",
-            "ipi_radial",
-            "sum_radial",
-            "sensory_volume",
-        ],
-    )
+    # visualize(
+    #     output_dir=OUTPUT_DIR,
+    #     save_animation=hydra_parent_dir,
+    #     unique_id=f"job_number_{hydra_job_num}",
+    #     resolution=50,
+    #     show_sounds=False,
+    #     focal_bat=0,
+    #     modules=[
+    #         "arena",
+    #         # "polarization_milling",
+    #         "info_text",
+    #         # "ipi_radial",
+    #         # "sum_radial",
+    #         "sensory_volume",
+    #     ],
+    # )
 
     sns.set_theme(style="whitegrid", context="talk")
 
@@ -126,6 +127,7 @@ def run_simulation(cfg: DictConfig) -> None:
 
     s_bat = real_size_to_scatter_size(0.125, fig, 9)
     s_obstacle = real_size_to_scatter_size(0.04, fig, 9)
+    hull = ConvexHull(positions)
 
     sns.scatterplot(x=x, y=y, color="black", alpha=0.2, ax=ax, s=s_bat)
     ax.scatter(
@@ -137,6 +139,14 @@ def run_simulation(cfg: DictConfig) -> None:
     )
     ax.scatter(*positions[0], c="#55A868", s=120, label="Start", zorder=3)
     ax.scatter(*positions[-1], c="#C44E52", s=120, label="End", zorder=3)
+    for simplex in hull.simplices:
+        ax.plot(positions[simplex, 0], positions[simplex, 1], "r-", linewidth=2)
+    ax.fill(
+        positions[hull.vertices, 0],
+        positions[hull.vertices, 1],
+        alpha=0.2,
+        color="lightgreen",
+    )
 
     ax.set(xlim=(0, 9), ylim=(0, 5), aspect="equal")
     ax.legend(frameon=False)

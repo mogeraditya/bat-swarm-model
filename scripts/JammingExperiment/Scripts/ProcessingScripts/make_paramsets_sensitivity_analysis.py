@@ -18,7 +18,7 @@ from supporting_files.utilities import load_parameters, make_dir
 simulation_parameters = load_parameters(
     r"./scripts/JammingExperiment/Data/InputData/common_parameters.json"
 )
-dir_to_store = r"./scripts/JammingExperiment/Data/InputData/sensitivity_analysis/"
+dir_to_store = r"./scripts/JammingExperiment/Data/InputData/sensitivity_params/"
 make_dir(dir_to_store)
 
 

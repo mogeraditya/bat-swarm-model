@@ -149,7 +149,7 @@ if __name__ == "__main__":
     PARAM_DIR = "./scripts/JammingExperiment/Data/InputData/test/"
 
     N_RUNS = 1  # Number of iterations per parameter set
-    DATA_STORAGE_DIR = r"./sensitivity_analysis/"  # Base output directory
+    DATA_STORAGE_DIR = r"./sensitivity_analysis_test_2/"  # Base output directory
     # MAX_WORKERS = 4  # Limit number of parallel processes
 
     # Run parallel processing

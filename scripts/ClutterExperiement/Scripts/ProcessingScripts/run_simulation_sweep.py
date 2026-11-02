@@ -99,22 +99,22 @@ def run_simulation(cfg: DictConfig) -> None:
         range_of_distance_for_local_score=np.arange(0.5, 4, 0.5),
     )
 
-    # visualize(
-    #     output_dir=OUTPUT_DIR,
-    #     save_animation=hydra_parent_dir,
-    #     unique_id=f"job_number_{hydra_job_num}",
-    #     resolution=50,
-    #     show_sounds=False,
-    #     focal_bat=0,
-    #     modules=[
-    #         "arena",
-    #         "polarization_milling",
-    #         "info_text",
-    #         "ipi_radial",
-    #         "sum_radial",
-    #         "sensory_volume",
-    #     ],
-    # )
+    visualize(
+        output_dir=OUTPUT_DIR,
+        save_animation=hydra_parent_dir,
+        unique_id=f"job_number_{hydra_job_num}",
+        resolution=50,
+        show_sounds=False,
+        focal_bat=0,
+        modules=[
+            "arena",
+            "polarization_milling",
+            "info_text",
+            "ipi_radial",
+            "sum_radial",
+            "sensory_volume",
+        ],
+    )
 
     sns.set_theme(style="whitegrid", context="talk")
 

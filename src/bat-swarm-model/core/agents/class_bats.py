@@ -114,6 +114,12 @@ class Bat:
         self.is_bat_rotating = False
         self.log_distance_moved = 0
 
+    def reset_bat(self):
+
+        self.next_direction = self.direction
+        self.ipi_matrix_for_consistency_timeseries = []
+        self.cell_index_to_respond_to = [np.nan, np.nan]
+
     def update(self, current_time, sound_objects, temporal_masking_file):
         """Function to update bats with time.
         This function handles movement update of bat each time step.
@@ -126,7 +132,8 @@ class Bat:
             temporal_masking_file (csv): temporal masking function to use for the agent.
         """
 
-        self.update_movement()  # move the agent based on its velocity and position at last step.
+        # move the agent based on its velocity and position at last step.
+        self.update_movement()
         # check if the agent needs to emit echolocation call.
         self.emit_sounds(current_time, sound_objects)
         # check if the agent needs to update its direction, based on if sufficient time has passed
@@ -158,38 +165,22 @@ class Bat:
         if self.parameters_df["ARENA_TYPE"] == "bounded":
             # in bounded case,  agents bounce off walls
             if (
-                self.position.x <= 0
-                or self.position.x >= self.parameters_df["ARENA_WIDTH"]
+                self.position.x <= self.radius
+                or self.position.x >= self.parameters_df["ARENA_WIDTH"] - self.radius
             ):
-                if self.position.x <= 0:
-                    self.position = Vector(
-                        self.position.x + self.radius, self.position.y
-                    )
-                else:
-                    self.position = Vector(
-                        self.position.x - self.radius, self.position.y
-                    )
 
+                self.position = Vector(self.position.x, self.position.y)
                 self.direction.x *= -1
-                self.next_direction = self.direction
-                self.ipi_matrix_for_consistency_timeseries = []
+                self.reset_bat()
 
             if (
-                self.position.y <= 0
-                or self.position.y >= self.parameters_df["ARENA_LENGTH"]
+                self.position.y <= self.radius
+                or self.position.y >= self.parameters_df["ARENA_LENGTH"] - self.radius
             ):
-                if self.position.y <= 0:
-                    self.position = Vector(
-                        self.position.x, self.position.y + self.radius
-                    )
-                else:
-                    self.position = Vector(
-                        self.position.x, self.position.y - self.radius
-                    )
 
+                self.position = Vector(self.position.x, self.position.y)
                 self.direction.y *= -1
-                self.next_direction = self.direction
-                self.ipi_matrix_for_consistency_timeseries = []
+                self.reset_bat()
 
         if self.parameters_df["ARENA_TYPE"] == "open":
             # in open case, the agents spawn at the other side of the wall based on direction

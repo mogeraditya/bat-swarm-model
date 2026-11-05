@@ -191,7 +191,7 @@ if __name__ == "__main__":
     # Run parallel processing
     print("Starting parallel processing...")
 
-    chosen_start_location = Vector(5, 3.5)
+    chosen_start_location = Vector(4.5, 2.5)
 
     parallel_process_with_pool(
         param_dir=PARAM_DIR,

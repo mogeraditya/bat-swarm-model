@@ -10,7 +10,7 @@ if __name__ == "__main__":
     #           show_sounds=True, focal_bat=0)
 
     # Only want the arena + sensory volume + text counters this time:
-    OUTPUT_DIR = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/outputs/2026-10-12/16-21-45/"
+    OUTPUT_DIR = r"/home/adityamoger/Documents/GitHub/bat-swarm-model/multirun/2026-11-05/17-04-50/23/"
     visualize(
         output_dir=OUTPUT_DIR,
         save_animation=False,  # OUTPUT_DIR,
@@ -20,11 +20,11 @@ if __name__ == "__main__":
         focal_bat=1,
         modules=[
             "arena",
-            "polarization_milling",
-            "info_text",
-            "ipi_radial",
-            "sum_radial",
-            "sensory_volume",
+            # "polarization_milling",
+            # "info_text",
+            # "ipi_radial",
+            # "sum_radial",
+            # "sensory_volume",
         ],
         rows=2,
         columns=3,

@@ -125,7 +125,7 @@ def run_simulation(cfg: DictConfig) -> None:
 
     fig, ax = plt.subplots(figsize=(9, 5))
 
-    s_bat = real_size_to_scatter_size(0.125, fig, 9)
+    s_bat = real_size_to_scatter_size(0.25, fig, 9)
     s_obstacle = real_size_to_scatter_size(0.04, fig, 9)
     hull = ConvexHull(positions)
 

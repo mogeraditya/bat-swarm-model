@@ -161,6 +161,33 @@ def convert_detected_sounds_into_grids_loudest_sound(
     return store_grid, spatial_grid_theta
 
 
+def select_cell_to_respond_to(matrix, intensity_threshold, neighbour_selection):
+    """pick the cell to respond to among the ones above the intensity threshold
+
+    Args:
+        matrix (np.ndarray): 1 x n sensory grid restricted to the hearing range
+        intensity_threshold (float): spl a cell must exceed to be a candidate
+        neighbour_selection (str): "loudest" picks the loudest cell,
+            "random" picks uniformly among the cells above threshold
+
+    Returns:
+        int: column index of the selected cell
+    """
+    if neighbour_selection == "loudest":
+        return np.argmax(matrix)
+    elif neighbour_selection == "random":
+
+        candidate_cells = np.flatnonzero(matrix > intensity_threshold)
+
+        # if len(candidate_cells)==0"
+        # return
+        return np.random.choice(candidate_cells)
+    else:
+        raise ValueError(
+            "NEIGHBOUR_SELECTION should be either 'loudest' or 'random' in the parameters file."
+        )
+
+
 def given_matrix_find_cell_to_respond_to_loudest_sound(
     matrix,
     parameters_df,
@@ -204,6 +231,7 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
 
     intensity_threshold_for_attraction = parameters_df["SPL_THRESHOLD_FOR_ATTRACTION"]
     intensity_threshold_for_repulsion = parameters_df["SPL_THRESHOLD_FOR_REPULSION"]
+    neighbour_selection = parameters_df.get("NEIGHBOUR_SELECTION", "random")
 
     # check if repulsion criteria met?
     # loudest_intensity_in_repulsion_matrix = np.max(matrix_based_on_repulsion_range)
@@ -236,7 +264,7 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
             for intensity in matrix_based_on_attraction_range
         ][0]
     )
-
+    # print(is_bat_doing_repulsion)
     if is_bat_doing_repulsion:
         # TODO : add sustainance of response
         if (
@@ -246,8 +274,12 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
         ):
             return (0, previous_output_cell[1])
 
-        loudest_cell_in_repulsion_matrix = np.argmax(matrix_based_on_repulsion_range)
-        output_cell_number = (0, loudest_cell_in_repulsion_matrix)
+        selected_cell_in_repulsion_matrix = select_cell_to_respond_to(
+            matrix_based_on_repulsion_range,
+            intensity_threshold_for_repulsion,
+            neighbour_selection,
+        )
+        output_cell_number = (0, selected_cell_in_repulsion_matrix)
     elif is_bat_doing_attraction:
         # TODO : add sustainance of response
         if (
@@ -257,8 +289,12 @@ def given_matrix_find_cell_to_respond_to_loudest_sound(
         ):
             return (0, previous_output_cell[1])
 
-        loudest_cell_in_attraction_matrix = np.argmax(matrix_based_on_attraction_range)
-        output_cell_number = (0, loudest_cell_in_attraction_matrix)
+        selected_cell_in_attraction_matrix = select_cell_to_respond_to(
+            matrix_based_on_repulsion_range,
+            intensity_threshold_for_attraction,
+            neighbour_selection,
+        )
+        output_cell_number = (0, selected_cell_in_attraction_matrix)
     elif not (is_bat_doing_repulsion or is_bat_doing_attraction):
         output_cell_number = (np.nan, np.nan)
     else:

@@ -81,34 +81,6 @@ def run_simulation(cfg: DictConfig) -> None:
         hydra_job_num,
         range_of_distance_for_local_score=np.arange(0.5, 4, 0.5),
     )
-    # for filepath in os.listdir(hydra_job_dir):
-    #     if ".pkl" in filepath:
-    #         os.remove(hydra_job_dir + "/" + filepath)
-
-    # list_of_local_polarizations = []
-    # list_of_coresponding_local_density = []
-    # for frame in history_list:
-    #     list_of_local_polarizations.extend(frame["local_polarization_score_list"])
-    #     list_of_coresponding_local_density.extend(frame["local_density_score_list"])
-
-    # plt.figure(figsize=(8, 6))
-
-    # g = sns.jointplot(
-    #     x=list_of_coresponding_local_density,
-    #     y=list_of_local_polarizations,
-    #     kind="hist",  # Use histogram for the 2D part
-    #     marginal_kws=dict(bins=10, fill=True),  # Marginal histograms
-    #     cmap="viridis",
-    #     height=6,
-    #     ratio=5,
-    #     space=0.2,
-    # )
-    # g.set_axis_labels("X", "Y")
-    # g.figure.suptitle(
-    #     "Joint Plot: 2D Histogram with Marginal Distributions", fontsize=14, y=1.02
-    # )
-
-    # plt.savefig(OUTPUT_DIR + "/scatter_plot_oflocal_pol.png")
 
     visualize(
         output_dir=OUTPUT_DIR,
@@ -121,9 +93,9 @@ def run_simulation(cfg: DictConfig) -> None:
             "arena",
             "polarization_milling",
             "info_text",
-            # "ipi_radial",
-            # "sum_radial",
-            # "sensory_volume",
+            "ipi_radial",
+            "sum_radial",
+            "sensory_volume",
         ],
     )
 

@@ -1,5 +1,5 @@
 import numpy as np
-from movement_decision.supporting_functions_for_consistency import (  # given_matrix_find_cell_to_respond_to_absence,
+from movement_decision.supporting_functions_for_consistency_2 import (  # given_matrix_find_cell_to_respond_to_absence,
     convert_detected_sounds_into_grids,
     given_matrix_find_cell_to_respond_to_presence,
     given_time_and_angle_return_direction,
@@ -12,6 +12,17 @@ from movement_decision.supporting_functions_for_loudest_sound import (
 from supporting_files.vectors import Vector
 
 
+def find_sum_of_db_matrices(list_of_matrices):
+    """Return elementwise dB sum of equally shaped matrices; zeros are ignored."""
+    linear_sum = np.sum(
+        [10 ** (matrix / 20) * (matrix != 0) for matrix in list_of_matrices], axis=0
+    )
+    output_matrix = np.zeros_like(linear_sum, dtype=float)
+    mask = linear_sum != 0
+    output_matrix[mask] = np.round(20 * np.log10(linear_sum[mask]), 2)
+    return output_matrix
+
+
 def decide_next_direction_based_on_consistency(self, detected_sound_objects):
     """decide next direction of bat based on sound
 
@@ -22,19 +33,26 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
     number_of_consistent_ipis_for_behaviour = int(
         np.ceil(self.parameters_df["MEMORY_WINDOW_FOR_CONSISTENCY"] / 2)
     )
-    grid_for_current_ipi, grid_row_labels, grid_column_labels = (
-        convert_detected_sounds_into_grids(
-            detected_sound_objects,
-            self.parameters_df,
-            self.direction,
-            self.allocentric_axis_y,
-        )
+    (
+        grid_for_current_ipi,
+        grid_for_current_ipi_intensity,
+        grid_row_labels,
+        grid_column_labels,
+    ) = convert_detected_sounds_into_grids(
+        detected_sound_objects,
+        self.parameters_df,
+        self.direction,
+        self.allocentric_axis_y,
     )
+
     self.memory_window_to_store_grids.append(grid_for_current_ipi)
+    self.memory_window_to_store_grids_intensity.append(grid_for_current_ipi_intensity)
 
     length_of_memory_window = len(self.memory_window_to_store_grids)
+
     if length_of_memory_window > len_cap_memory_window:
         self.memory_window_to_store_grids.pop(0)
+        self.memory_window_to_store_grids_intensity.pop(0)
     elif length_of_memory_window <= len_cap_memory_window:
         number_of_consistent_ipis_for_behaviour = np.min(
             [number_of_consistent_ipis_for_behaviour, length_of_memory_window - 1]
@@ -42,12 +60,16 @@ def decide_next_direction_based_on_consistency(self, detected_sound_objects):
 
     grids_to_consider_for_direction_change = self.memory_window_to_store_grids.copy()
     sum_grids_in_memory = np.sum(grids_to_consider_for_direction_change, axis=0)
+    sum_grids_in_memory_intensity = find_sum_of_db_matrices(
+        self.memory_window_to_store_grids_intensity
+    )
 
     self.memory_window_sum_matrix = sum_grids_in_memory.copy()
     self.ipi_matrix_for_consistency = grids_to_consider_for_direction_change[-1]
 
     cell_index_to_respond_to = given_matrix_find_cell_to_respond_to_presence(
         sum_grids_in_memory,
+        sum_grids_in_memory_intensity,
         number_of_consistent_ipis_for_behaviour,
         self.parameters_df,
         self.direction,

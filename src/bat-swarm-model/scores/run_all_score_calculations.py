@@ -100,9 +100,9 @@ def given_history_list_generate_score_files(
     bat_positions_list, bat_directions_list = filter_bat_positions_from_history(
         history_lists
     )
-    if len(bat_positions_list) > 1000:
-        bat_positions_list = bat_positions_list[1000:]
-        bat_directions_list = bat_directions_list[1000:]
+    if len(bat_positions_list) > 10000:
+        bat_positions_list = bat_positions_list[10000:]
+        bat_directions_list = bat_directions_list[10000:]
     parameters_df = load_parameters(data_dir + "/parameters_used.json")
     duration = len(bat_positions_list)
     (

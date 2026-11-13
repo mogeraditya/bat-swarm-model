@@ -16,14 +16,18 @@ def convert_matrix_to_one_hot(matrix):
     return one_hot_matrix
 
 
-# def check_if_two_lists_are_disjoint(list1, list2):
-#     for element in list1:
-#         is_element_in_list2 = any(
-#             all(item in sublist for item in element) for sublist in list2
-#         )
-#         if is_element_in_list2:
-#             return False
-#     return True
+def convert_matrix_to_db(matrix):
+    db_matrix = matrix.copy()
+    num_rows, num_columns = matrix.shape
+    for i in range(num_rows):
+        for j in range(num_columns):
+            if matrix[i, j] > 0:
+                db_matrix[i, j] = 20 * np.log10(matrix[i, j])
+            else:
+                db_matrix[i, j] = 0
+    return db_matrix
+
+
 def given_parameters_df_return_grid_matrix_zeros(parameters_df):
     radial_resolution = parameters_df["BAT_RADIAL_RESOLUTION"]
     angular_resolution = np.radians(parameters_df["BAT_ANGULAR_RESOLUTION"])
@@ -64,9 +68,9 @@ def convert_detected_sounds_into_grids(
         given_parameters_df_return_grid_matrix_zeros(parameters_df)
     )
     store_grid = matrix_spatial_grid.copy()
-
+    store_grid_intensity = matrix_spatial_grid.copy()
     if len(heard_sounds) == 0:
-        return store_grid, spatial_grid_r, spatial_grid_theta
+        return store_grid, store_grid_intensity, spatial_grid_r, spatial_grid_theta
     for sound_object in heard_sounds:
 
         delta_t = (
@@ -91,12 +95,16 @@ def convert_detected_sounds_into_grids(
             grid_column_index = 0
 
         store_grid[grid_row_index, grid_column_index] += 1
-
+        store_grid_intensity[grid_row_index, grid_column_index] += 10 ** (
+            sound_object["received_spl"] / 20
+        )
+    # print(store_grid_intensity)
+    store_grid_intensity = convert_matrix_to_db(store_grid_intensity)
     if convert_grid_to_one_hot:
         store_grid = convert_matrix_to_one_hot(store_grid).copy()
     else:
         store_grid = store_grid / np.max(store_grid)
-    return store_grid, spatial_grid_r, spatial_grid_theta
+    return store_grid, store_grid_intensity, spatial_grid_r, spatial_grid_theta
 
 
 def given_matrix_shortlist_response_cells(matrix, threshold_for_activation):
@@ -273,6 +281,7 @@ def convert_angles_to_negpi_to_pi(list_of_angles):
 
 def given_matrix_find_cell_to_respond_to_presence(
     matrix,
+    matrix_intensity,
     number_of_consistent_ipis_for_behaviour,
     parameters_df,
     bat_direction,
@@ -293,11 +302,15 @@ def given_matrix_find_cell_to_respond_to_presence(
         # print()
         return (np.nan, np.nan)
 
+    flat_idx = np.argmax(np.matrix(matrix_intensity))
+    row_idx, col_idx = np.unravel_index(flat_idx, matrix_intensity.shape)
+
     find_all_elements_with_min_row_index, find_all_thresholds_with_min_row_index = (
         given_matrix_shortlist_response_cells(
             matrix, number_of_consistent_ipis_for_behaviour
         )
     )
+    # return (row_idx, col_idx)
 
     _first_element_for_nan_check = find_all_elements_with_min_row_index[0][0]
     if np.isnan(_first_element_for_nan_check):
@@ -314,5 +327,6 @@ def given_matrix_find_cell_to_respond_to_presence(
         output_cell_number = find_all_elements_with_min_row_index[
             np.argsort(find_all_thresholds_with_min_row_index)[-1]
         ]
+        # print(output_cell_number)
         output_cell_number = (output_cell_number[0], output_cell_number[1])
         return output_cell_number

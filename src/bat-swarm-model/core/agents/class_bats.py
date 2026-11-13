@@ -81,7 +81,7 @@ class Bat:
 
         # store sensory grids after every call, for consistency checks
         self.memory_window_to_store_grids = []
-
+        self.memory_window_to_store_grids_intensity = []
         # store response type of agent
         self.response_type = None
         self.cell_index_to_respond_to = [np.nan, np.nan]  # initialize response cell
@@ -589,7 +589,13 @@ class Bat:
 
         is_bat_processing = (current_time - self.emit_times[-1]) < rotation_time_delay
 
-        if current_direction != new_direction and not is_bat_processing:
+        angle_between_current_and_new = current_direction.angle_between(new_direction)
+
+        if (
+            abs(angle_between_current_and_new)
+            > np.radians(self.parameters_df["BAT_ANGULAR_RESOLUTION"])
+            and not is_bat_processing
+        ):
 
             self.is_bat_rotating = True
 
@@ -598,9 +604,6 @@ class Bat:
 
             rotation_rate = (
                 np.radians(self.rotation_speed) * self.parameters_df["TIME_STEP"]
-            )
-            angle_between_current_and_new = current_direction.angle_between(
-                new_direction
             )
 
             if angle_between_current_and_new > rotation_rate:
@@ -614,6 +617,7 @@ class Bat:
             self.direction = rotated_vector.normalize()
         else:
             self.is_bat_rotating = False
+
         # elif current_direction.angle_between(new_direction) <= np.radians(15):
         #     self.speed = self.parameters_df["BAT_FAST_SPEED"]
         if self.any_consistent_sound == "no":
